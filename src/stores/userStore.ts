@@ -5,6 +5,7 @@ import type { User } from '@/types'
 export const useUserStore = defineStore('user', () => {
   const activeId = ref<string>('')
   const users = ref<User[]>([])
+  const conversationId = ref<string>('')
 
   function setActiveId(id: string) {
     activeId.value = id
@@ -14,5 +15,9 @@ export const useUserStore = defineStore('user', () => {
     users.value = data
   }
 
-  return { activeId, users, setActiveId, setUsers }
+  function setConversationId(id: string) {
+    conversationId.value = id
+  }
+
+  return { activeId, users, conversationId, setActiveId, setUsers, setConversationId }
 })
