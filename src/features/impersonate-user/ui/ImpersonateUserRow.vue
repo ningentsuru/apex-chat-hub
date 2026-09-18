@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/entities/user/model/userStore'
 import { useRouter } from 'vue-router'
-import defaultAvatarPath from '@/assets/test-image.jpg'
+import defaultAvatarPath from '@/shared/assets/test-image.jpg'
 
 interface Props {
   id: string

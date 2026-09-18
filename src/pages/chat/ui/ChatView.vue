@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/entities/user/model/userStore'
 import { useRouter } from 'vue-router'
-import ChatCanvas from '@/components/ChatCanvas.vue'
+import { ChatCanvas } from '@/widgets/chat-workspace'
 
 const userStore = useUserStore()
 const router = useRouter()

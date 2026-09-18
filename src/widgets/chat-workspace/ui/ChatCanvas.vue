@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/entities/user/model/userStore'
 import { getTalkSession } from '@talkjs/core'
 
 import '@talkjs/web-components'
@@ -21,8 +21,6 @@ const session = ref<ReturnType<typeof getTalkSession> | null>(null)
 
 function handleConversationId(event: { conversation?: { id: string } }) {
   const conversationId = event.conversation?.id
-  console.log('Selected Conversation ID:', conversationId)
-
   if (conversationId) {
     userStore.setConversationId(conversationId)
   }

@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         less: {
-          additionalData: `@import "@/styles/tokens.less";`,
+          additionalData: `@import "@/app/styles/tokens.less";`,
           javascriptEnabled: true,
         },
       },
