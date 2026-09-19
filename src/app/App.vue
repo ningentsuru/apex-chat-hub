@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TheHeader, TheFooter } from '@/widgets/general-layout'
+import { TheHeader, TheFooter } from '@widgets/general-layout'
 </script>
 
 <template>

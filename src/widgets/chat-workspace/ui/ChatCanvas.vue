@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
-import { useUserStore } from '@/entities/user/model/userStore'
+import { useUserStore } from '@entities/user/model/userStore'
 import { getTalkSession } from '@talkjs/core'
 
 import '@talkjs/web-components'

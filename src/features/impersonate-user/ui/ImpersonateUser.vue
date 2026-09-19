@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ImpersonateUserRow } from '@/features/impersonate-user'
-import { useUserStore } from '@/entities/user/model/userStore'
-import type { User } from '@/shared/types/index.ts'
+import { ImpersonateUserRow } from '@features/impersonate-user'
+import { useUserStore } from '@entities/user/model/userStore'
+import type { User } from '@shared/types/index.ts'
 
 const userStore = useUserStore()
 const isLoading = ref<boolean>(true)

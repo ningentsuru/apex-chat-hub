@@ -26,6 +26,9 @@ importers:
       vue-router:
         specifier: ^5.2.0
         version: 5.3.1(@vue/compiler-sfc@3.5.42)(esbuild@0.27.0)(pinia@4.0.3(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.42(typescript@6.0.3)))(rolldown@1.2.8)(vite@8.2.2(@types/node@24.13.4)(esbuild@0.27.0)(jiti@2.7.0)(less@4.9.1(supports-color@8.1.1))(tsx@4.21.0))(vue@3.5.42(typescript@6.0.3))
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@tsconfig/node24':
         specifier: ^24.0.4
@@ -2879,6 +2882,7 @@ packages:
     engines: {node: '>=v14.21.3'}
     peerDependencies:
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+      vue: '*'
 
   vite-plugin-vue-inspector@6.0.0:
     resolution: {integrity: sha512-OpyITJLgZNibxlrik1EmRtvXHDjLRxNPsWkGFTERZs2LgMEdG4W0WoFt5GIgp3a3jRou+eJR8U1zOBk/XQgEbw==}
@@ -3100,6 +3104,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
 snapshots:
 
@@ -5789,10 +5796,10 @@ snapshots:
       vite: 8.2.2(@types/node@24.13.4)(esbuild@0.27.0)(jiti@2.7.0)(less@4.9.1(supports-color@8.1.1))(tsx@4.21.0)
       vite-plugin-inspect: 11.4.1(vite@8.2.2(@types/node@24.13.4)(esbuild@0.27.0)(jiti@2.7.0)(less@4.9.1(supports-color@8.1.1))(tsx@4.21.0))
       vite-plugin-vue-inspector: 6.0.0(supports-color@8.1.1)(vite@8.2.2(@types/node@24.13.4)(esbuild@0.27.0)(jiti@2.7.0)(less@4.9.1(supports-color@8.1.1))(tsx@4.21.0))
+      vue: 3.5.42(typescript@6.0.3)
     transitivePeerDependencies:
       - '@nuxt/kit'
       - supports-color
-      - vue
 
   vite-plugin-vue-inspector@6.0.0(supports-color@8.1.1)(vite@8.2.2(@types/node@24.13.4)(esbuild@0.27.0)(jiti@2.7.0)(less@4.9.1(supports-color@8.1.1))(tsx@4.21.0)):
     dependencies:
@@ -5990,3 +5997,5 @@ snapshots:
       pend: 1.2.0
 
   yocto-queue@0.1.0: {}
+
+  zod@4.6.5: {}

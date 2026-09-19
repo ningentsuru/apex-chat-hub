@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ImpersonateUser } from '@/features/impersonate-user'
-import { AddUserModal } from '@/features/add-user'
+import { ImpersonateUser } from '@features/impersonate-user'
+import { AddUserModal } from '@features/add-user'
 
 const isModalOpen = ref(false)
 
