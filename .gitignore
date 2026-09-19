@@ -40,3 +40,6 @@ __screenshots__/
 
 # Environment
 .env
+
+*storybook.log
+storybook-static
