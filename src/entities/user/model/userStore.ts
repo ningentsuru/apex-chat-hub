@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, shallowRef } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import { getTalkSession } from '@talkjs/core'
 import { UserSchema } from './types'
 import type { User, TalkJsSession, CreateUserPayload, TargetUserPayload } from './types'
@@ -9,13 +9,17 @@ export const useUserStore = defineStore('user', () => {
   let abortController: AbortController | null = null
 
   const activeId = ref<string>('')
-  const users = ref<User[]>([])
+  const users = shallowRef<User[]>([])
   const conversationId = ref<string>('')
 
   const isLoading = ref<boolean>(false)
   const errorMessage = ref<string | null>(null)
 
   const session = shallowRef<TalkJsSession | null>(null)
+
+  const activeUser = computed(
+    () => users.value.find((item) => item.id === activeId.value)?.name || '',
+  )
 
   function setActiveId(id: string) {
     activeId.value = id
@@ -37,6 +41,16 @@ export const useUserStore = defineStore('user', () => {
 
   function setConversationId(id: string) {
     conversationId.value = id
+  }
+
+  /**
+   * Disposes background Abort Controllers safely on layout lifecycle unmount flags
+   */
+  function abortFetch() {
+    if (abortController) {
+      abortController.abort()
+      abortController = null
+    }
   }
 
   /**
@@ -64,32 +78,19 @@ export const useUserStore = defineStore('user', () => {
 
       const result = await response.json()
 
-      users.value = result.data.map((rawUser: unknown) => {
-        const parseResult = UserSchema.safeParse(rawUser)
+      setUsers(
+        result.data
+          .filter((item: { name: string }) => item.name !== 'Account Deactivated')
+          .map((rawUser: unknown) => {
+            const parsed = UserSchema.safeParse(rawUser).data
 
-        if (!parseResult.success) {
-          console.warn(
-            'Patched structural schema anomaly in user data record:',
-            parseResult.error.format(),
-          )
-
-          const raw = rawUser as Record<string, unknown>
-          return {
-            id: String(raw.id || `gen_${Math.random().toString(36).substring(2, 7)}`),
-            name: String(raw.name || 'Anonymous User'),
-            email: String(raw.email || ''),
-            photoUrl: String(raw.photoUrl || 'https://placehold.co'),
-          }
-        }
-
-        const parsed = parseResult.data
-        return {
-          id: parsed.id || `fallback_${Math.random().toString(36).substring(2, 7)}`,
-          name: parsed.name || 'Anonymous User',
-          email: parsed.email || '',
-          photoUrl: parsed.photoUrl || 'https://placehold.co',
-        }
-      })
+            return {
+              id: parsed?.id || '',
+              name: parsed?.name || '',
+              photoUrl: parsed?.photoUrl || '',
+            }
+          }),
+      )
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') return
       errorMessage.value =
@@ -101,16 +102,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * Disposes background Abort Controllers safely on layout lifecycle unmount flags
-   */
-  function abortFetch() {
-    if (abortController) {
-      abortController.abort()
-      abortController = null
-    }
-  }
-
-  /**
    * Dispatches generation commands down to database layers and hooks models locally
    */
   async function createUser(payload: CreateUserPayload) {
@@ -118,13 +109,14 @@ export const useUserStore = defineStore('user', () => {
       isLoading.value = true
       errorMessage.value = null
 
-      const response = await fetch(`/talkjs-api/users`, {
-        method: 'POST',
+      const clientUuid = `client_${crypto.randomUUID()}`
+
+      const response = await fetch(`/talkjs-api/users/${clientUuid}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: `user_${Math.random().toString(36).substring(2, 9)}`,
           name: payload.name,
-          email: payload.email,
+          email: [payload.email],
           photoUrl: payload.photoUrl,
         }),
       })
@@ -139,7 +131,7 @@ export const useUserStore = defineStore('user', () => {
         id: result.data.id || result.data.customId,
         name: result.data.name,
         email: result.data.email || '',
-        photoUrl: result.data.photoUrl || 'https://placehold.co',
+        photoUrl: result.data.photoUrl || '',
       }
 
       users.value.push(newUser)
@@ -166,17 +158,21 @@ export const useUserStore = defineStore('user', () => {
     try {
       isLoading.value = true
 
-      await session.value.currentUser.createIfNotExists({
-        name: activeId.value,
-      })
-
-      await session.value.user(targetUser.id).createIfNotExists({
-        name: targetUser.name || targetUser.id,
-      })
+      await Promise.all([
+        session.value.currentUser.createIfNotExists({
+          name: activeId.value,
+        }),
+        session.value.user(targetUser.id).createIfNotExists({
+          name: targetUser.name || targetUser.id,
+        }),
+      ])
 
       const conversation = session.value.conversation(customConversationId)
-      await conversation.createIfNotExists()
-      await conversation.participant(targetUser.id).createIfNotExists()
+
+      await Promise.all([
+        conversation.createIfNotExists(),
+        conversation.participant(targetUser.id).createIfNotExists(),
+      ])
 
       conversationId.value = customConversationId
       return customConversationId
@@ -189,8 +185,48 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  /**
+   * Overwrites an existing user's data on TalkJS to anonymize them,
+   * then removes them from the local cache application screen.
+   */
+  async function deactivateUser(targetUserId: string) {
+    try {
+      isLoading.value = true
+      errorMessage.value = null
+
+      const response = await fetch(`/talkjs-api/users/${targetUserId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Account Deactivated',
+          email: [],
+          photoUrl: null,
+          role: 'deactivated',
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`TalkJS Deactivation Failure: ${response.status} ${response.statusText}`)
+      }
+
+      users.value = users.value.filter((user) => user.id !== targetUserId)
+
+      if (activeId.value === targetUserId) {
+        setActiveId('')
+      }
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Failed to deactivate member profile'
+      console.error(error)
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     activeId,
+    activeUser,
     users,
     conversationId,
     isLoading,
@@ -204,5 +240,6 @@ export const useUserStore = defineStore('user', () => {
     abortFetch,
     createUser,
     startConversationWithUser,
+    deactivateUser,
   }
 })

@@ -26,7 +26,7 @@ describe('HomeView - Default Story Context', () => {
     // Verifies layout matching the Default story state
     expect(wrapper.find('main.home-view').exists()).toBe(true)
     expect(wrapper.find('[data-testid="impersonate-user-mock"]').exists()).toBe(true)
-    expect(wrapper.find('.sticky-btn').text()).toContain('Add User +')
+    expect(wrapper.find('.sticky-btn').text()).toContain('Add User')
   })
 
   it('toggles the registration modal visibility on interaction', async () => {
@@ -35,7 +35,7 @@ describe('HomeView - Default Story Context', () => {
     // Modal should be hidden by default
     expect(wrapper.find('[data-testid="add-user-modal-mock"]').exists()).toBe(false)
 
-    // Click "Add User +"
+    // Click "Add User"
     await wrapper.find('.sticky-btn').trigger('click')
     expect(wrapper.find('[data-testid="add-user-modal-mock"]').exists()).toBe(true)
 

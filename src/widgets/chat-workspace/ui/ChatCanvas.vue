@@ -11,6 +11,7 @@ const userStore = useUserStore()
 
 const appId = userStore.appId
 const userId = computed(() => userStore.activeId)
+const userName = computed(() => userStore.activeUser)
 const conversationId = computed(() => userStore.conversationId)
 const talkSession = computed(() => userStore.session)
 
@@ -110,6 +111,9 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
           @select-conversation="handleConversationId"
         />
       </div>
+      <div class="tabs-footer">
+        <div class="footer-content">Welcome back {{ userName }}!</div>
+      </div>
     </div>
 
     <div class="chatbox-wrapper">
@@ -162,11 +166,16 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     border-radius: @border-radius-m;
     height: 100%;
     &.is-active {
-      background-color: @color-background-soft !important;
-      color: @color-primary !important;
+      background-color: @color-background-soft;
+      color: @color-primary;
       font-weight: @weight-bold;
     }
   }
+}
+.tabs-footer {
+  display: flex;
+  justify-content: end;
+  padding: 10px;
 }
 .sidebar-scroll-panel {
   flex: 1;
@@ -178,17 +187,17 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   gap: @spacing-xs;
   padding: @spacing-s;
 }
-.user-row-trigger {
-  width: 100%;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
+.user-row-trigger.a-button {
+  background: transparent;
   border-radius: @border-radius-m;
+  border: none;
   overflow: hidden;
+  padding: 0;
+  width: 100%;
   &:hover:not(:disabled) {
     :deep(.a-user-card) {
-      background-color: @color-background-soft !important;
-      border-color: @color-border-hover !important;
+      background-color: @color-background-soft;
+      border-color: @color-border-hover;
     }
   }
 }

@@ -34,24 +34,24 @@ function handleSelectUser() {
 </template>
 
 <style lang="less" scoped>
-.impersonate-user-row-trigger {
-  width: 100%;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
+.impersonate-user-row-trigger.a-button {
+  background: transparent;
   border-radius: @border-radius-m;
+  border: none;
   overflow: hidden;
+  padding: 0;
+  width: 100%;
 
   &:hover:not(:disabled) {
     :deep(.a-user-card) {
-      background-color: @color-background-soft !important;
-      border-color: @color-primary !important;
-      color: @color-heading !important;
+      background-color: @color-background-soft;
+      border-color: @color-primary;
+      color: @color-heading;
     }
   }
 
   .button-content {
-    width: 100% !important;
+    width: 100%;
   }
 }
 </style>

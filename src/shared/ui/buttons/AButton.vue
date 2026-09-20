@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type ButtonVariant = 'primary' | 'accent' | 'outline' | 'text' | 'ghost'
+type ButtonVariant = 'primary' | 'accent' | 'outline' | 'text' | 'ghost' | 'destructive'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 interface Props {
@@ -27,9 +27,8 @@ withDefaults(defineProps<Props>(), {
     :class="[`is-${variant}`, `is-${size}`, { 'is-loading': loading }]"
   >
     <span v-if="loading" class="spinner" aria-hidden="true"></span>
-
     <span class="button-content" :class="{ 'is-hidden': loading }">
-      <slot />
+      <slot></slot>
     </span>
   </button>
 </template>
@@ -53,10 +52,10 @@ withDefaults(defineProps<Props>(), {
 
   &:disabled {
     cursor: not-allowed;
-    background-color: @color-bg-disabled !important;
-    border-color: transparent !important;
-    color: @color-disabled !important;
-    box-shadow: none !important;
+    background-color: @color-bg-disabled;
+    border-color: transparent;
+    color: @color-disabled;
+    box-shadow: none;
   }
 
   &.is-sm {
@@ -76,9 +75,8 @@ withDefaults(defineProps<Props>(), {
   &.is-primary {
     background-color: @color-primary;
     color: var(--vt-c-white);
-
     &:hover:not(:disabled) {
-      background-color: darken(#42b883, 8%);
+      background-color: @color-primary-hover;
       box-shadow: @shadow-sm;
     }
   }
@@ -86,7 +84,6 @@ withDefaults(defineProps<Props>(), {
   &.is-accent {
     background-color: @color-accent;
     color: var(--vt-c-white);
-
     &:hover:not(:disabled) {
       background-color: darken(#646cff, 8%);
       box-shadow: @shadow-sm;
@@ -97,7 +94,6 @@ withDefaults(defineProps<Props>(), {
     background-color: transparent;
     border-color: @color-border;
     color: @color-text;
-
     &:hover:not(:disabled) {
       border-color: @color-border-hover;
       background-color: @color-background-soft;
@@ -107,30 +103,41 @@ withDefaults(defineProps<Props>(), {
   &.is-text {
     background-color: transparent;
     color: @color-primary;
-
     &:hover:not(:disabled) {
       background-color: fade(#42b883, 10%);
     }
   }
 
   &.is-ghost {
-    background-color: transparent;
+    background-color: @color-background;
     color: @color-text;
+    &:hover:not(:disabled) {
+      background-color: @color-background-soft;
+      border-color: @color-border;
+    }
+  }
+
+  &.is-destructive {
+    background-color: @color-error;
+    color: var(--vt-c-white);
 
     &:hover:not(:disabled) {
-      background-color: @color-background-mute;
+      background-color: darken(#ed3c50, 6%);
+      box-shadow: @shadow-sm;
+    }
+
+    .spinner {
+      border-color: var(--vt-c-white);
+      border-right-color: transparent;
     }
   }
 }
-
 .button-content {
   width: 100%;
 }
-
 .button-content.is-hidden {
   opacity: 0;
 }
-
 .spinner {
   position: absolute;
   width: 16px;
@@ -140,7 +147,6 @@ withDefaults(defineProps<Props>(), {
   border-radius: @border-radius-round;
   animation: button-spin 0.75s linear infinite;
 }
-
 @keyframes button-spin {
   to {
     transform: rotate(360deg);

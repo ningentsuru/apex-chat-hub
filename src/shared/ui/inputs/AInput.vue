@@ -48,7 +48,6 @@ const hasError = computed(() => !!props.error)
       />
     </div>
 
-    <!-- Live Regional Error Text Content Display -->
     <transition name="fade-slide">
       <span v-if="hasError" :id="`${id}-error`" class="a-input-error-text" role="alert">
         {{ error }}

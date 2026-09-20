@@ -1,4 +1,6 @@
 export { default as AButton } from './buttons/AButton.vue'
+export { default as ACombobox } from './inputs/ACombobox.vue'
 export { default as AInput } from './inputs/AInput.vue'
 export { default as AModal } from './modals/AModal.vue'
+export { default as AUploadAvatar } from './inputs/AUploadAvatar.vue'
 export { default as AUserCard } from './cards/AUserCard.vue'

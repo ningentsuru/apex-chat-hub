@@ -23,7 +23,6 @@ function handleImageError(event: Event) {
 
 <template>
   <div class="a-user-card" :class="{ 'is-active': isActive }">
-    <!-- Avatar Shield Container -->
     <div class="client-avatar">
       <img
         :src="photoUrl || defaultAvatarPath"
@@ -34,7 +33,6 @@ function handleImageError(event: Event) {
       />
     </div>
 
-    <!-- User Meta Metadata Label -->
     <span class="client-name">{{ name }}</span>
   </div>
 </template>
@@ -42,25 +40,25 @@ function handleImageError(event: Event) {
 <style lang="less" scoped>
 .a-user-card {
   align-items: center;
-  background-color: @color-background !important;
+  background-color: @color-background;
   border-radius: @border-radius-m;
-  border: 1px solid @color-border !important;
-  color: @color-text !important;
-  display: flex !important;
+  border: 1px solid @color-border;
+  color: @color-text;
+  display: flex;
   font-size: @text-md;
   font-weight: @weight-medium;
   gap: @spacing-s;
-  justify-content: flex-start !important;
-  padding: @spacing-s @spacing-m !important;
+  justify-content: flex-start;
+  padding: @spacing-s @spacing-m;
   pointer-events: none;
   text-align: left;
   transition: @transition-fast;
   width: 100%;
 
   &.is-active {
-    background-color: fade(#42b883, 12%) !important;
-    border-color: fade(#42b883, 30%) !important;
-    color: @color-primary !important;
+    background-color: fade(#42b883, 12%);
+    border-color: fade(#42b883, 30%);
+    color: @color-primary;
     font-weight: @weight-bold;
   }
 }
