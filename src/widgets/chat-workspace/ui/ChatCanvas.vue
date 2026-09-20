@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useUserStore } from '@entities/user/model/userStore'
-import { AButton, AUserCard } from '@shared/ui'
+import { AButton, AUserCard, ATwoColumnCanvas } from '@shared/ui'
+import { MessageCircle } from '@lucide/vue'
 
 import '@talkjs/web-components'
 import '@talkjs/web-components/default.css'
-import { MessageCircle } from '@lucide/vue'
 
 const userStore = useUserStore()
-
 const appId = userStore.appId
 const userId = computed(() => userStore.activeId)
 const userName = computed(() => userStore.activeUser)
@@ -19,7 +18,9 @@ const excludeCurrentUser = computed(() =>
   userStore.users.filter((user) => user.id !== userId.value),
 )
 
-const activeTab = ref<'start' | 'current'>('start')
+const activeTab = ref<'start' | 'current'>('current')
+const isSidebarOpen = ref(true)
+
 const isSiteDark = ref(
   localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark'),
 )
@@ -49,18 +50,25 @@ onUnmounted(() => {
 
 function handleConversationId(event: { conversation?: { id: string } }) {
   const cId = event.conversation?.id
-  if (cId) userStore.setConversationId(cId)
+  if (cId) {
+    userStore.setConversationId(cId)
+    if (window.innerWidth < 640) {
+      isSidebarOpen.value = false
+    }
+  }
 }
 
 async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   if (!targetUser.id || !targetUser.name) return
-
   try {
     await userStore.startConversationWithUser({
       id: targetUser.id,
       name: targetUser.name,
     })
     activeTab.value = 'current'
+    if (window.innerWidth < 640) {
+      isSidebarOpen.value = false
+    }
   } catch (err) {
     console.error('UI Action error block:', err)
   }
@@ -68,8 +76,8 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
 </script>
 
 <template>
-  <section class="chat-canvas">
-    <div class="tabs-wrapper">
+  <ATwoColumnCanvas v-model:open="isSidebarOpen" class="chat-canvas-viewport">
+    <template #sidebar>
       <div class="tabs-header">
         <AButton
           variant="ghost"
@@ -90,7 +98,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
       </div>
 
       <div class="sidebar-scroll-panel">
-        <div v-if="activeTab === 'start'" class="start-conversation">
+        <div v-show="activeTab === 'start'" class="start-conversation">
           <AButton
             v-for="user in excludeCurrentUser"
             :key="user.id"
@@ -111,47 +119,37 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
           @select-conversation="handleConversationId"
         />
       </div>
+
       <div class="tabs-footer">
         <div class="footer-content">Welcome back {{ userName }}!</div>
       </div>
-    </div>
+    </template>
 
-    <div class="chatbox-wrapper">
-      <t-chatbox
-        v-if="conversationId && userId && talkSession"
-        :key="`${conversationId}_has_session`"
-        :app-id="appId"
-        :user-id="userId"
-        :conversation-id="conversationId"
-        :theme="isSiteDark ? 'default_dark' : 'default'"
-      />
-      <div v-else class="empty-chat-state">
-        <div class="empty-graphic"><MessageCircle height="70" width="70" /></div>
-        <h3>No Conversation Active</h3>
-        <p>
-          Choose a user from the menu sidebar panel to open a live encrypted message thread
-          connection.
-        </p>
-      </div>
+    <t-chatbox
+      v-if="conversationId && userId && talkSession"
+      :key="`${conversationId}_has_session`"
+      :app-id="appId"
+      :user-id="userId"
+      :conversation-id="conversationId"
+      :theme="isSiteDark ? 'default_dark' : 'default'"
+    />
+    <div v-else class="empty-chat-state">
+      <div class="empty-graphic"><MessageCircle height="70" width="70" /></div>
+      <h3>No Conversation Active</h3>
+      <p>
+        Choose a user from the menu sidebar panel to open a live encrypted message thread
+        connection.
+      </p>
     </div>
-  </section>
+  </ATwoColumnCanvas>
 </template>
 
 <style lang="less" scoped>
-.chat-canvas {
-  display: flex;
+.chat-canvas-viewport {
   height: @full-height;
   width: 100%;
-  background-color: @color-background;
 }
-.tabs-wrapper {
-  width: 320px;
-  min-width: 320px;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid @color-border;
-  background-color: @color-background;
-}
+
 .tabs-header {
   display: flex;
   gap: @spacing-xs;
@@ -172,21 +170,29 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     }
   }
 }
+
 .tabs-footer {
   display: flex;
   justify-content: end;
-  padding: 10px;
+  padding: @spacing-s;
+  font-size: @text-sm;
+  color: @color-text;
+  opacity: 0.8;
+  border-top: 1px solid @color-border;
 }
+
 .sidebar-scroll-panel {
   flex: 1;
   overflow-y: auto;
 }
+
 .start-conversation {
   display: flex;
   flex-direction: column;
   gap: @spacing-xs;
   padding: @spacing-s;
 }
+
 .user-row-trigger.a-button {
   background: transparent;
   border-radius: @border-radius-m;
@@ -201,19 +207,13 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     }
   }
 }
-t-conversation-list {
-  height: 100%;
-  width: 100%;
-}
-.chatbox-wrapper {
-  flex: 1;
-  height: 100%;
-  background-color: @color-background-soft;
-}
+
+t-conversation-list,
 t-chatbox {
   height: 100%;
   width: 100%;
 }
+
 .empty-chat-state {
   display: flex;
   flex-direction: column;
@@ -224,9 +224,9 @@ t-chatbox {
   text-align: center;
   color: @color-text;
   .empty-graphic {
-    font-size: 48px;
     margin-bottom: @spacing-m;
-    opacity: 0.7;
+    opacity: 0.6;
+    color: @color-primary;
   }
   h3 {
     color: @color-heading;
