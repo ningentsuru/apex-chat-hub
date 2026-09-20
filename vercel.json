@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/talkjs-api/:path*",
-            "destination": "https://talkjs.com*"
+            "destination": "/api/talkjs-api"
         },
         {
             "source": "/(.*)",

@@ -6,16 +6,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!appId || appId === 'undefined' || !secretKey || secretKey === 'undefined') {
     return res.status(500).json({
-      error: 'Missing or corrupt TalkJS API tokens inside Vercel environment configurations.',
+      error: 'Missing TalkJS API configuration tokens on production server.',
       debug: { hasAppId: !!appId, hasSecretKey: !!secretKey },
     })
   }
 
-  const wildcardPath = req.query.path
-    ? `/${Array.isArray(req.query.path) ? req.query.path.join('/') : req.query.path}`
-    : ''
+  const rawUrl = req.url || ''
 
-  const targetUrl = `https://api.talkjs.com/v1/${appId}${wildcardPath}`
+  const urlWithoutQuery = rawUrl.split('?')[0]
+  let cleanPath = urlWithoutQuery.replace(/^\/api\/talkjs-api/, '').replace(/^\/talkjs-api/, '')
+
+  if (cleanPath && !cleanPath.startsWith('/')) {
+    cleanPath = `/${cleanPath}`
+  }
+
+  const targetUrl = `https://api.talkjs.com/v1/${appId}${cleanPath}`
 
   try {
     const fetchOptions: RequestInit = {
@@ -47,6 +52,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     console.error('Vercel serverless proxy crash:', error)
-    return res.status(502).json({ error: 'Internal connection bridge failed to synchronize' })
+    return res.status(502).json({
+      error: 'Host lookup resolution failed',
+      attemptedUrl: targetUrl,
+    })
   }
 }
