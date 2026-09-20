@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/talkjs-api/:path*",
+            "destination": "/api/talkjs-api"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}
