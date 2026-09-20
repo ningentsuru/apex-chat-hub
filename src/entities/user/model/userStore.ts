@@ -21,6 +21,10 @@ export const useUserStore = defineStore('user', () => {
     () => users.value.find((item) => item.id === activeId.value)?.name || '',
   )
 
+  const activePhoto = computed(
+    () => users.value.find((item) => item.id === activeId.value)?.photoUrl || '',
+  )
+
   function setActiveId(id: string) {
     activeId.value = id
     conversationId.value = ''
@@ -125,13 +129,11 @@ export const useUserStore = defineStore('user', () => {
         throw new Error(`Failed to create user: ${response.status} ${response.statusText}`)
       }
 
-      const result = await response.json()
-
       const newUser: User = {
-        id: result.data.id || result.data.customId,
-        name: result.data.name,
-        email: result.data.email || '',
-        photoUrl: result.data.photoUrl || '',
+        id: clientUuid,
+        name: payload.name,
+        email: payload.email,
+        photoUrl: payload.photoUrl || '',
       }
 
       users.value.push(newUser)
@@ -227,6 +229,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     activeId,
     activeUser,
+    activePhoto,
     users,
     conversationId,
     isLoading,

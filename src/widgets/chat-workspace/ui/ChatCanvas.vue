@@ -13,6 +13,7 @@ const uiStore = useUiStore()
 const appId = userStore.appId
 const userId = computed(() => userStore.activeId)
 const userName = computed(() => userStore.activeUser)
+const userPhoto = computed(() => userStore.activePhoto)
 const conversationId = computed(() => userStore.conversationId)
 const talkSession = computed(() => userStore.session)
 
@@ -127,7 +128,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
       </div>
 
       <div class="tabs-footer">
-        <div class="footer-content">Welcome back {{ userName }}!</div>
+        <AUserCard :name="userName" :photo-url="userPhoto" />
       </div>
     </template>
 
@@ -178,13 +179,15 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
 }
 
 .tabs-footer {
+  align-items: center;
   color: @color-text;
   display: flex;
   font-size: @text-sm;
-  height: 40px;
-  justify-content: end;
-  opacity: 0.8;
-  padding: @spacing-s;
+  height: @footer-height;
+
+  .a-user-card {
+    width: 100%;
+  }
 }
 
 .sidebar-scroll-panel {
@@ -193,11 +196,12 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
 }
 
 .start-conversation {
+  border-radius: 8px;
+  border: 1px solid @color-border;
   display: flex;
   flex-direction: column;
   gap: @spacing-xs;
-  height: auto;
-  height: calc(@full-height - @header-height - 40px);
+  height: calc(@full-height - @header-height - @footer-height);
   overflow-x: hidden;
   overflow-y: auto;
   padding: @spacing-s;
@@ -221,7 +225,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   }
 }
 t-conversation-list {
-  height: calc(@full-height - @header-height - 40px);
+  height: calc(@full-height - @header-height - @footer-height);
   width: 100%;
 }
 
