@@ -190,6 +190,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   display: flex;
   flex-direction: column;
   gap: @spacing-xs;
+  height: calc(@full-height - @header-height);
   padding: @spacing-s;
 }
 
@@ -210,7 +211,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
 
 t-conversation-list,
 t-chatbox {
-  height: 100%;
+  height: calc(@full-height - @header-height);
   width: 100%;
 }
 

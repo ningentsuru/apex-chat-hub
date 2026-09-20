@@ -1,97 +1,70 @@
 <script lang="ts" setup>
-import { Menu, X } from '@lucide/vue'
-import { AButton } from '@shared/ui'
+import { useUiStore } from '@entities/ui/model/uiStore'
 
-const isOpen = defineModel<boolean>('open', { default: false })
+const uiStore = useUiStore()
 </script>
 
 <template>
-  <div class="a-two-column-canvas" :class="{ 'is-sidebar-open': isOpen }">
-    <AButton
-      variant="ghost"
-      class="mobile-toggle"
-      @click="isOpen = !isOpen"
-      :aria-label="isOpen ? 'Close layout sidebar panel' : 'Open layout sidebar panel'"
-    >
-      <X v-if="isOpen" height="20" width="20" />
-      <Menu v-else height="20" width="20" />
-    </AButton>
-
+  <div class="a-two-column-canvas" :class="{ 'is-sidebar-open': uiStore.isSidebarOpen }">
     <aside class="canvas-sidebar">
-      <slot name="sidebar" />
+      <slot name="sidebar"></slot>
     </aside>
 
     <main class="canvas-workspace">
-      <slot />
+      <slot></slot>
     </main>
   </div>
 </template>
 
 <style lang="less" scoped>
-.a-two-column-canvas {
-  display: flex;
-  height: @full-height;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
+.mobile-mode(@rules) {
+  @media (min-width: 640px) {
+    @rules();
+  }
 }
 
-.mobile-toggle {
-  background-color: @color-background-soft !important;
-  border-radius: @border-radius-m;
-  border: 1px solid @color-border !important;
-  box-shadow: @shadow-sm;
-  height: 40px;
-  left: @spacing-s;
-  padding: 0 !important;
-  position: absolute;
-  top: @spacing-s;
-  width: 40px;
-  z-index: calc(@z-index-nav + 20);
-
-  .mobile-mode({
-    display: none;
-  });
+.a-two-column-canvas {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .canvas-sidebar {
-  background-color: @color-background;
-  border-right: 1px solid @color-border;
-  height: 100%;
-  left: 0;
-  padding-top: 56px;
   position: absolute;
   top: 0;
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  left: 0;
+  height: 100%;
   width: 100%;
   z-index: @z-index-nav;
+  background-color: @color-background;
+  border-right: 1px solid @color-border;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   .mobile-mode({
-    min-width: 240px;
-    padding-top: 0;
     position: relative;
-    transform: translateX(0);
+    transform: translateX(0) !important;
     width: 20%;
+    min-width: 240px;
   });
 }
 
 .canvas-workspace {
-  background-color: @color-background-soft;
+  width: 100%;
   height: 100%;
-  left: 0;
-  padding-top: 56px;
   position: absolute;
   top: 0;
+  left: 0;
+  background-color: @color-background-soft;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
 
   .mobile-mode({
-    flex: 1;
-    padding-top: 0;
     position: relative;
-    transform: translateX(0);
     width: auto;
+    flex: 1;
+    transform: translateX(0) !important;
   });
 }
 

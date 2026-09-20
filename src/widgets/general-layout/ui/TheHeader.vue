@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { AButton } from '@shared/ui'
 import { Sun, Moon } from '@lucide/vue'
+import { useUiStore } from '@entities/ui/model/uiStore'
+
+const uiStore = useUiStore()
+const route = useRoute()
 
 const isDark = ref(false)
+
+const isChatPath = computed(() => route.name === 'chat' || route.path === '/chat')
 
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme')
@@ -37,7 +44,22 @@ const toggleTheme = () => {
 
 <template>
   <header class="app-header">
-    <RouterLink :to="{ name: 'home' }" class="logo-link"> Apex Chat Hub </RouterLink>
+    <div class="header-left">
+      <AButton
+        v-if="isChatPath"
+        variant="ghost"
+        size="sm"
+        class="sidebar-toggle-btn"
+        @click="uiStore.toggleSidebar()"
+        :aria-label="uiStore.isSidebarOpen ? 'Hide side panel' : 'Show side panel'"
+      >
+        <span class="arrow-icon" aria-hidden="true">
+          {{ uiStore.isSidebarOpen ? '&lt;' : '&gt;' }}
+        </span>
+      </AButton>
+
+      <RouterLink :to="{ name: 'home' }" class="logo-link"> Apex Chat Hub </RouterLink>
+    </div>
 
     <AButton
       variant="ghost"
@@ -61,6 +83,36 @@ const toggleTheme = () => {
   border-bottom: 1px solid @color-border;
   background-color: @color-background;
   transition: @transition-color;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: @spacing-s;
+}
+
+.sidebar-toggle-btn {
+  padding: 0 !important;
+  height: 36px;
+  width: 36px;
+  border-radius: @border-radius-m;
+  color: @color-text;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: @transition-fast;
+
+  &:hover {
+    color: @color-heading;
+    background-color: @color-background-soft !important;
+  }
+
+  .arrow-icon {
+    font-size: @text-lg;
+    font-weight: @weight-bold;
+    line-height: 1;
+    font-family: monospace, sans-serif;
+  }
 }
 
 .logo-link {
