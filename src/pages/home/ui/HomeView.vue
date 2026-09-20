@@ -25,6 +25,7 @@ const isDeactivateModalOpen = ref(false)
 <style lang="less" scoped>
 main {
   .main-flex(10px);
+  overflow-y: auto;
 }
 
 .sticky-btn {

@@ -30,6 +30,7 @@ const handleSubmit = async () => {
   } finally {
     isSubmitting.value = false
     userStore.fetchTalkJsUsers()
+    resetForm()
   }
 }
 

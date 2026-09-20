@@ -178,13 +178,13 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
 }
 
 .tabs-footer {
-  display: flex;
-  justify-content: end;
-  padding: @spacing-s;
-  font-size: @text-sm;
   color: @color-text;
+  display: flex;
+  font-size: @text-sm;
+  height: 40px;
+  justify-content: end;
   opacity: 0.8;
-  border-top: 1px solid @color-border;
+  padding: @spacing-s;
 }
 
 .sidebar-scroll-panel {
@@ -196,17 +196,23 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   display: flex;
   flex-direction: column;
   gap: @spacing-xs;
-  height: calc(@full-height - @header-height);
+  height: auto;
+  height: calc(@full-height - @header-height - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: @spacing-s;
+  width: 100%;
 }
 
 .user-row-trigger.a-button {
   background: transparent;
   border-radius: @border-radius-m;
   border: none;
+  flex-shrink: 0;
   overflow: hidden;
   padding: 0;
   width: 100%;
+
   &:hover:not(:disabled) {
     :deep(.a-user-card) {
       background-color: @color-background-soft;
@@ -214,9 +220,8 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     }
   }
 }
-
 t-conversation-list {
-  height: calc(@full-height - @header-height);
+  height: calc(@full-height - @header-height - 40px);
   width: 100%;
 }
 
