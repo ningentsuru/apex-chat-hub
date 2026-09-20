@@ -209,9 +209,13 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   }
 }
 
-t-conversation-list,
-t-chatbox {
+t-conversation-list {
   height: calc(@full-height - @header-height);
+  width: 100%;
+}
+
+t-chatbox {
+  height: @full-height;
   width: 100%;
 }
 

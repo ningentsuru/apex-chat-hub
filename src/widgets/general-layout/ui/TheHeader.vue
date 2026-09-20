@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { AButton } from '@shared/ui'
-import { Sun, Moon } from '@lucide/vue'
+import { Sun, Moon, Menu, X } from '@lucide/vue'
 import { useUiStore } from '@entities/ui/model/uiStore'
 
 const uiStore = useUiStore()
@@ -51,11 +51,10 @@ const toggleTheme = () => {
         size="sm"
         class="sidebar-toggle-btn"
         @click="uiStore.toggleSidebar()"
-        :aria-label="uiStore.isSidebarOpen ? 'Hide side panel' : 'Show side panel'"
+        :aria-label="uiStore.isSidebarOpen ? 'Show side panel' : 'Hide side panel'"
       >
-        <span class="arrow-icon" aria-hidden="true">
-          {{ uiStore.isSidebarOpen ? '&lt;' : '&gt;' }}
-        </span>
+        <X v-if="uiStore.isSidebarOpen" />
+        <Menu v-else />
       </AButton>
 
       <RouterLink :to="{ name: 'home' }" class="logo-link"> Apex Chat Hub </RouterLink>
@@ -101,6 +100,10 @@ const toggleTheme = () => {
   align-items: center;
   justify-content: center;
   transition: @transition-fast;
+
+  .mobile-mode({
+    display: none
+  });
 
   &:hover {
     color: @color-heading;

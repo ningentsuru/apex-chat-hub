@@ -17,12 +17,6 @@ const uiStore = useUiStore()
 </template>
 
 <style lang="less" scoped>
-.mobile-mode(@rules) {
-  @media (min-width: 640px) {
-    @rules();
-  }
-}
-
 .a-two-column-canvas {
   display: flex;
   height: 100%;
@@ -45,7 +39,7 @@ const uiStore = useUiStore()
 
   .mobile-mode({
     position: relative;
-    transform: translateX(0) !important;
+    transform: translateX(0);
     width: 20%;
     min-width: 240px;
   });
@@ -64,7 +58,7 @@ const uiStore = useUiStore()
     position: relative;
     width: auto;
     flex: 1;
-    transform: translateX(0) !important;
+    transform: translateX(0);
   });
 }
 
@@ -76,7 +70,7 @@ const uiStore = useUiStore()
     transform: translateX(100%);
 
     .mobile-mode({
-      transform: translateX(0) !important;
+      transform: translateX(0);
     });
   }
 }
