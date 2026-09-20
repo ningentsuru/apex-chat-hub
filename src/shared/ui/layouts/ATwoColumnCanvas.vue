@@ -30,24 +30,24 @@ const isOpen = defineModel<boolean>('open', { default: false })
 <style lang="less" scoped>
 .a-two-column-canvas {
   display: flex;
-  height: 100%;
-  width: 100%;
-  position: relative;
+  height: @full-height;
   overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .mobile-toggle {
+  background-color: @color-background-soft !important;
+  border-radius: @border-radius-m;
+  border: 1px solid @color-border !important;
+  box-shadow: @shadow-sm;
+  height: 40px;
+  left: @spacing-s;
+  padding: 0 !important;
   position: absolute;
   top: @spacing-s;
-  left: @spacing-s;
-  z-index: calc(@z-index-nav + 20);
   width: 40px;
-  height: 40px;
-  padding: 0 !important;
-  border-radius: @border-radius-m;
-  box-shadow: @shadow-sm;
-  background-color: @color-background-soft !important;
-  border: 1px solid @color-border !important;
+  z-index: calc(@z-index-nav + 20);
 
   .mobile-mode({
     display: none;
@@ -55,43 +55,43 @@ const isOpen = defineModel<boolean>('open', { default: false })
 }
 
 .canvas-sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  padding-top: 56px;
-  z-index: @z-index-nav;
   background-color: @color-background;
   border-right: 1px solid @color-border;
+  height: 100%;
+  left: 0;
+  padding-top: 56px;
+  position: absolute;
+  top: 0;
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  z-index: @z-index-nav;
 
   .mobile-mode({
+    min-width: 240px;
+    padding-top: 0;
     position: relative;
     transform: translateX(0);
     width: 20%;
-    min-width: 240px;
-    padding-top: 0;
   });
 }
 
 .canvas-workspace {
-  width: 100%;
+  background-color: @color-background-soft;
   height: 100%;
-  position: absolute;
-  top: 0;
   left: 0;
   padding-top: 56px;
-  background-color: @color-background-soft;
+  position: absolute;
+  top: 0;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
 
   .mobile-mode({
-    position: relative;
-    width: auto;
     flex: 1;
     padding-top: 0;
-    transform: translateX(0) !important;
+    position: relative;
+    transform: translateX(0);
+    width: auto;
   });
 }
 
