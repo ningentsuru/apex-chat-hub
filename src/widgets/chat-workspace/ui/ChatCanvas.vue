@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from '@entities/user/model/userStore'
+import { useUiStore } from '@entities/ui/model/uiStore'
 import { AButton, AUserCard, ATwoColumnCanvas } from '@shared/ui'
 import { MessageCircle } from '@lucide/vue'
 
@@ -8,6 +9,7 @@ import '@talkjs/web-components'
 import '@talkjs/web-components/default.css'
 
 const userStore = useUserStore()
+const uiStore = useUiStore()
 const appId = userStore.appId
 const userId = computed(() => userStore.activeId)
 const userName = computed(() => userStore.activeUser)
@@ -19,7 +21,7 @@ const excludeCurrentUser = computed(() =>
 )
 
 const activeTab = ref<'start' | 'current'>('current')
-const isSidebarOpen = ref(true)
+const isSidebarOpen = computed(() => uiStore.isSidebarOpen)
 
 const isSiteDark = ref(
   localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark'),
@@ -44,6 +46,10 @@ watch(
   { immediate: true },
 )
 
+onMounted(() => {
+  uiStore.setSidebarOpen(true)
+})
+
 onUnmounted(() => {
   themeObserver.disconnect()
 })
@@ -53,7 +59,7 @@ function handleConversationId(event: { conversation?: { id: string } }) {
   if (cId) {
     userStore.setConversationId(cId)
     if (window.innerWidth < 640) {
-      isSidebarOpen.value = false
+      uiStore.setSidebarOpen(false)
     }
   }
 }
@@ -67,7 +73,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     })
     activeTab.value = 'current'
     if (window.innerWidth < 640) {
-      isSidebarOpen.value = false
+      uiStore.setSidebarOpen(false)
     }
   } catch (err) {
     console.error('UI Action error block:', err)
