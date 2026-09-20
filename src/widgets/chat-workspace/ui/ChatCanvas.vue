@@ -1,160 +1,235 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useUserStore } from '@entities/user/model/userStore'
-import { getTalkSession } from '@talkjs/core'
+import { AButton, AUserCard } from '@shared/ui'
 
 import '@talkjs/web-components'
 import '@talkjs/web-components/default.css'
+import { MessageCircle } from '@lucide/vue'
 
 const userStore = useUserStore()
-const appId = import.meta.env.VITE_APP_TALKJS_APP_ID as string
 
-const userId = computed<string | undefined>(() => userStore.activeId)
-const conversationId = computed<string | undefined>(() => userStore.conversationId)
+const appId = userStore.appId
+const userId = computed(() => userStore.activeId)
+const conversationId = computed(() => userStore.conversationId)
+const talkSession = computed(() => userStore.session)
+
 const excludeCurrentUser = computed(() =>
   userStore.users.filter((user) => user.id !== userId.value),
 )
 
 const activeTab = ref<'start' | 'current'>('start')
+const isSiteDark = ref(
+  localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark'),
+)
 
-const session = ref<ReturnType<typeof getTalkSession> | null>(null)
-
-function handleConversationId(event: { conversation?: { id: string } }) {
-  const conversationId = event.conversation?.id
-  if (conversationId) {
-    userStore.setConversationId(conversationId)
-  }
-}
-
-async function startConversationWithUser(targetUser: { id?: string; name?: string }) {
-  if (!userId.value || !session.value || !targetUser.id) return
-
-  const participants = [userId.value, targetUser.id].sort()
-  const customConversationId = `chat_${participants[0]}_${participants[1]}`
-
-  try {
-    await session.value.currentUser.createIfNotExists({
-      name: userId.value,
-    })
-
-    await session.value.user(targetUser.id).createIfNotExists({
-      name: targetUser.name || targetUser.id,
-    })
-
-    const conversation = session.value.conversation(customConversationId)
-    await conversation.createIfNotExists()
-
-    await conversation.participant(targetUser.id).createIfNotExists()
-
-    userStore.setConversationId(customConversationId)
-    activeTab.value = 'current'
-  } catch (error) {
-    console.error('Failed to initialize TalkJS conversation:', error)
-  }
-}
+const themeObserver = new MutationObserver(() => {
+  isSiteDark.value = document.documentElement.classList.contains('dark')
+})
 
 watch(
-  userId,
-  (newId) => {
-    if (newId && appId) {
-      session.value = getTalkSession({
-        appId: appId,
-        userId: newId,
+  [userId, talkSession],
+  ([newId, currentSession]) => {
+    if (newId && currentSession) {
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
       })
     } else {
-      session.value = null
+      themeObserver.disconnect()
     }
   },
   { immediate: true },
 )
+
+onUnmounted(() => {
+  themeObserver.disconnect()
+})
+
+function handleConversationId(event: { conversation?: { id: string } }) {
+  const cId = event.conversation?.id
+  if (cId) userStore.setConversationId(cId)
+}
+
+async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
+  if (!targetUser.id || !targetUser.name) return
+
+  try {
+    await userStore.startConversationWithUser({
+      id: targetUser.id,
+      name: targetUser.name,
+    })
+    activeTab.value = 'current'
+  } catch (err) {
+    console.error('UI Action error block:', err)
+  }
+}
 </script>
 
 <template>
   <section class="chat-canvas">
     <div class="tabs-wrapper">
       <div class="tabs-header">
-        <button :class="{ active: activeTab === 'start' }" @click="activeTab = 'start'">
-          Start Conversation
-        </button>
-        <button :class="{ active: activeTab === 'current' }" @click="activeTab = 'current'">
-          Current Conversation
-        </button>
-      </div>
-
-      <div v-if="activeTab === 'start'" class="start-conversation">
-        <div
-          v-for="user in excludeCurrentUser"
-          :key="user.id"
-          class="user-tab"
-          @click="startConversationWithUser(user)"
+        <AButton
+          variant="ghost"
+          class="tab-btn"
+          :class="{ 'is-active': activeTab === 'start' }"
+          @click="activeTab = 'start'"
         >
-          {{ user.name || user.id }}
-        </div>
+          Start
+        </AButton>
+        <AButton
+          variant="ghost"
+          class="tab-btn"
+          :class="{ 'is-active': activeTab === 'current' }"
+          @click="activeTab = 'current'"
+        >
+          Chats
+        </AButton>
       </div>
 
-      <KeepAlive>
+      <div class="sidebar-scroll-panel">
+        <div v-if="activeTab === 'start'" class="start-conversation">
+          <AButton
+            v-for="user in excludeCurrentUser"
+            :key="user.id"
+            variant="ghost"
+            class="user-row-trigger"
+            @click="handleStartChat(user)"
+          >
+            <AUserCard :name="user.name || ''" :photo-url="user.photoUrl || ''" />
+          </AButton>
+        </div>
+
         <t-conversation-list
-          v-if="activeTab === 'current' && userId"
-          :key="userId"
+          v-show="activeTab === 'current' && userId && talkSession"
+          :key="`${userId}_has_session`"
           :app-id="appId"
           :user-id="userId"
+          :theme="isSiteDark ? 'default_dark' : 'default'"
           @select-conversation="handleConversationId"
         />
-      </KeepAlive>
+      </div>
     </div>
 
-    <!-- FIX 2: Changed :key to conversationId to force a clean component remount when switching chats -->
-    <t-chatbox
-      v-if="conversationId"
-      :key="conversationId"
-      :app-id="appId"
-      :user-id="userId"
-      :conversation-id="conversationId"
-    />
+    <div class="chatbox-wrapper">
+      <t-chatbox
+        v-if="conversationId && userId && talkSession"
+        :key="`${conversationId}_has_session`"
+        :app-id="appId"
+        :user-id="userId"
+        :conversation-id="conversationId"
+        :theme="isSiteDark ? 'default_dark' : 'default'"
+      />
+      <div v-else class="empty-chat-state">
+        <div class="empty-graphic"><MessageCircle height="70" width="70" /></div>
+        <h3>No Conversation Active</h3>
+        <p>
+          Choose a user from the menu sidebar panel to open a live encrypted message thread
+          connection.
+        </p>
+      </div>
+    </div>
   </section>
 </template>
 
 <style lang="less" scoped>
 .chat-canvas {
   display: flex;
+  height: @full-height;
+  width: 100%;
+  background-color: @color-background;
 }
 .tabs-wrapper {
-  width: 20%;
+  width: 320px;
+  min-width: 320px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid @color-border;
+  background-color: @color-background;
 }
 .tabs-header {
   display: flex;
-  border-bottom: 1px solid #ccc;
+  gap: @spacing-xs;
+  padding: @spacing-s;
+  border-bottom: 1px solid @color-border;
   height: @header-height;
-  button {
+  align-items: center;
+  .tab-btn {
     flex: 1;
-    padding: 10px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: @color-text;
-    font-size: 16px;
-    &.active {
-      font-weight: bold;
-      border-bottom: 2px solid #000;
+    font-size: @text-sm;
+    font-weight: @weight-medium;
+    border-radius: @border-radius-m;
+    height: 100%;
+    &.is-active {
+      background-color: @color-background-soft !important;
+      color: @color-primary !important;
+      font-weight: @weight-bold;
     }
   }
 }
+.sidebar-scroll-panel {
+  flex: 1;
+  overflow-y: auto;
+}
 .start-conversation {
+  display: flex;
+  flex-direction: column;
+  gap: @spacing-xs;
+  padding: @spacing-s;
+}
+.user-row-trigger {
   width: 100%;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: @border-radius-m;
+  overflow: hidden;
+  &:hover:not(:disabled) {
+    :deep(.a-user-card) {
+      background-color: @color-background-soft !important;
+      border-color: @color-border-hover !important;
+    }
+  }
 }
 t-conversation-list {
-  height: calc(@full-height - @header-height);
+  height: 100%;
   width: 100%;
 }
-t-chatbox {
-  height: @full-height;
-  width: 80%;
+.chatbox-wrapper {
+  flex: 1;
+  height: 100%;
+  background-color: @color-background-soft;
 }
-
-.user-tab {
-  cursor: pointer;
-  padding: 8px;
+t-chatbox {
+  height: 100%;
+  width: 100%;
+}
+.empty-chat-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: @spacing-xl;
+  text-align: center;
+  color: @color-text;
+  .empty-graphic {
+    font-size: 48px;
+    margin-bottom: @spacing-m;
+    opacity: 0.7;
+  }
+  h3 {
+    color: @color-heading;
+    font-weight: @weight-bold;
+    font-size: @text-lg;
+    margin-bottom: @spacing-xs;
+  }
+  p {
+    max-width: 360px;
+    font-size: @text-sm;
+    line-height: @lh-normal;
+    opacity: 0.8;
+  }
 }
 </style>

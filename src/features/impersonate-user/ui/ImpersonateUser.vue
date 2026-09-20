@@ -1,66 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { ImpersonateUserRow } from '@features/impersonate-user'
 import { useUserStore } from '@entities/user/model/userStore'
-import type { User } from '@shared/types/index.ts'
 
 const userStore = useUserStore()
-const isLoading = ref<boolean>(true)
-const errorMessage = ref<string | null>(null)
+
 const clients = computed(() => userStore.users)
 
-let abortController: AbortController | null = null
-
-async function fetchTalkJsUsers() {
-  try {
-    isLoading.value = true
-    errorMessage.value = null
-
-    abortController = new AbortController()
-
-    const response = await fetch(`/talkjs-api/users`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      signal: abortController.signal,
-    })
-
-    if (!response.ok) {
-      throw new Error(`TalkJS API Error: ${response.status} ${response.statusText}`)
-    }
-
-    const result = await response.json()
-
-    userStore.setUsers(
-      result.data.map((user: User) => ({
-        id: user.id,
-        name: user.name,
-        email: user.email || '',
-        photoUrl: user.photoUrl || 'https://placehold.co',
-      })),
-    )
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      return
-    }
-
-    errorMessage.value =
-      error instanceof Error ? error.message : 'An unknown network error occurred'
-    console.error('Failed to sync TalkJS users:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
 onMounted(() => {
-  fetchTalkJsUsers()
+  userStore.fetchTalkJsUsers()
 })
 
 onUnmounted(() => {
-  if (abortController) {
-    abortController.abort()
-  }
+  userStore.abortFetch()
 })
 </script>
 
@@ -90,7 +42,19 @@ onUnmounted(() => {
 
 .impersonate-user-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
+
+  .mobile-mode({
+    grid-template-columns: 1fr 1fr;
+  });
+
+  .tablet-mode({
+    grid-template-columns: 1fr 1fr 1fr;
+  });
+
+  .desktop-mode({
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  });
 }
 </style>

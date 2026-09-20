@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useUserStore } from '@entities/user/model/userStore'
 import { useRouter } from 'vue-router'
-import defaultAvatarPath from '@shared/assets/test-image.jpg'
+import { useUserStore } from '@entities/user/model/userStore'
+import { AButton, AUserCard } from '@shared/ui'
 
 interface Props {
   id: string
   name: string
-  photoUrl: string
+  photoUrl?: string
 }
+
 const props = withDefaults(defineProps<Props>(), {
   id: '',
   name: '',
@@ -17,77 +18,40 @@ const props = withDefaults(defineProps<Props>(), {
 
 const userStore = useUserStore()
 const router = useRouter()
-const userId = computed(() => userStore.activeId)
 
-function handleUserId() {
+const isActive = computed(() => userStore.activeId === props.id)
+
+function handleSelectUser() {
   userStore.setActiveId(props.id)
   router.push({ name: 'chat' })
-}
-
-function handleImageError(event: Event) {
-  const imgElement = event.target as HTMLImageElement
-
-  if (imgElement.src !== defaultAvatarPath) {
-    imgElement.src = defaultAvatarPath
-  }
 }
 </script>
 
 <template>
-  <button
-    class="impersonate-user-row"
-    :class="{ active: userId === props.id }"
-    @click="handleUserId"
-  >
-    <div class="client-avatar">
-      <img :src="photoUrl" alt="Profile Picture" width="40" height="40" @error="handleImageError" />
-    </div>
-    <span>{{ props.name }}</span>
-  </button>
+  <AButton variant="ghost" class="impersonate-user-row-trigger" @click="handleSelectUser">
+    <AUserCard :name="name" :photo-url="photoUrl" :is-active="isActive" />
+  </AButton>
 </template>
 
 <style lang="less" scoped>
-.impersonate-user-row {
-  .background-and-text();
-  align-items: center;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  font-size: 16px;
-  font-weight: bold;
-  gap: 10px;
-  padding: 10px;
-
-  &.active,
-  &:hover {
-    .background-and-text-invert();
-  }
-}
-
-.client-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.impersonate-user-row-trigger {
+  width: 100%;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: @border-radius-m;
   overflow: hidden;
-  background-color: #003366;
-  background-size: cover;
 
-  img {
-    border-radius: 50%;
-    height: 100%;
-    object-fit: cover;
-    width: 100%;
+  &:hover:not(:disabled) {
+    :deep(.a-user-card) {
+      background-color: @color-background-soft !important;
+      border-color: @color-primary !important;
+      color: @color-heading !important;
+    }
   }
-}
 
-.status {
-  height: 10px;
-  width: 10px;
-  border: 1px solid @color-text;
-  border-radius: 50%;
-}
-
-.online {
-  background-color: green;
+  .button-content {
+    width: 100% !important;
+  }
 }
 </style>
