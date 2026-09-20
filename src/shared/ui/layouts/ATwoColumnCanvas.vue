@@ -1,28 +1,17 @@
 <script lang="ts" setup>
-import { Menu, X } from '@lucide/vue'
-import { AButton } from '@shared/ui'
+import { useUiStore } from '@entities/ui/model/uiStore'
 
-const isOpen = defineModel<boolean>('open', { default: false })
+const uiStore = useUiStore()
 </script>
 
 <template>
-  <div class="a-two-column-canvas" :class="{ 'is-sidebar-open': isOpen }">
-    <AButton
-      variant="ghost"
-      class="mobile-toggle"
-      @click="isOpen = !isOpen"
-      :aria-label="isOpen ? 'Close layout sidebar panel' : 'Open layout sidebar panel'"
-    >
-      <X v-if="isOpen" height="20" width="20" />
-      <Menu v-else height="20" width="20" />
-    </AButton>
-
+  <div class="a-two-column-canvas" :class="{ 'is-sidebar-open': uiStore.isSidebarOpen }">
     <aside class="canvas-sidebar">
-      <slot name="sidebar" />
+      <slot name="sidebar"></slot>
     </aside>
 
     <main class="canvas-workspace">
-      <slot />
+      <slot></slot>
     </main>
   </div>
 </template>
@@ -36,31 +25,12 @@ const isOpen = defineModel<boolean>('open', { default: false })
   overflow: hidden;
 }
 
-.mobile-toggle {
-  position: absolute;
-  top: @spacing-s;
-  left: @spacing-s;
-  z-index: calc(@z-index-nav + 20);
-  width: 40px;
-  height: 40px;
-  padding: 0 !important;
-  border-radius: @border-radius-m;
-  box-shadow: @shadow-sm;
-  background-color: @color-background-soft !important;
-  border: 1px solid @color-border !important;
-
-  .mobile-mode({
-    display: none;
-  });
-}
-
 .canvas-sidebar {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   width: 100%;
-  padding-top: 56px;
   z-index: @z-index-nav;
   background-color: @color-background;
   border-right: 1px solid @color-border;
@@ -72,7 +42,6 @@ const isOpen = defineModel<boolean>('open', { default: false })
     transform: translateX(0);
     width: 20%;
     min-width: 240px;
-    padding-top: 0;
   });
 }
 
@@ -82,7 +51,6 @@ const isOpen = defineModel<boolean>('open', { default: false })
   position: absolute;
   top: 0;
   left: 0;
-  padding-top: 56px;
   background-color: @color-background-soft;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -90,8 +58,7 @@ const isOpen = defineModel<boolean>('open', { default: false })
     position: relative;
     width: auto;
     flex: 1;
-    padding-top: 0;
-    transform: translateX(0) !important;
+    transform: translateX(0);
   });
 }
 
@@ -103,7 +70,7 @@ const isOpen = defineModel<boolean>('open', { default: false })
     transform: translateX(100%);
 
     .mobile-mode({
-      transform: translateX(0) !important;
+      transform: translateX(0);
     });
   }
 }
