@@ -169,7 +169,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
       :theme="isSiteDark ? 'default_dark' : 'default'"
     />
     <div v-else class="empty-chat-state">
-      <div class="empty-graphic"><MessageCircle height="70" width="70" /></div>
+      <div class="empty-graphic"><MessageCircle :size="70" /></div>
       <h3>No Conversation Active</h3>
       <p>
         Choose a user from the menu sidebar panel to open a live encrypted message thread
