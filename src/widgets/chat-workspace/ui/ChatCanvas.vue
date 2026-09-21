@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useUserStore } from '@entities/user/model/userStore'
 import { useUiStore } from '@entities/ui/model/uiStore'
 import { AButton, AUserCard, ATwoColumnCanvas } from '@shared/ui'
@@ -16,6 +16,8 @@ const userName = computed(() => userStore.activeUser)
 const userPhoto = computed(() => userStore.activePhoto)
 const conversationId = computed(() => userStore.conversationId)
 const talkSession = computed(() => userStore.session)
+const chatboxRef = ref<HTMLElement | null>(null)
+let onClick: ((e: Event) => void) | null = null
 
 const excludeCurrentUser = computed(() =>
   userStore.users.filter((user) => user.id !== userId.value),
@@ -47,12 +49,37 @@ watch(
   { immediate: true },
 )
 
+watch(
+  chatboxRef,
+  (el) => {
+    if (!el) return
+    onClick = (e: Event) => {
+      if (
+        !e
+          .composedPath()
+          .some(
+            (n) =>
+              (n as HTMLElement).classList?.contains('t-emoji-button') ||
+              (n as HTMLElement).classList?.contains('t-add-reaction-button'),
+          )
+      )
+        return
+      nextTick(() => {
+        document.querySelector('emoji-picker')?.classList.toggle('dark', isSiteDark.value)
+      })
+    }
+    el.addEventListener('click', onClick)
+  },
+  { once: true },
+)
+
 onMounted(() => {
   uiStore.setSidebarOpen(true)
 })
 
 onUnmounted(() => {
   themeObserver.disconnect()
+  chatboxRef.value?.removeEventListener('click', onClick!)
 })
 
 function handleConversationId(event: { conversation?: { id: string } }) {
@@ -135,6 +162,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     <t-chatbox
       v-if="conversationId && userId && talkSession"
       :key="`${conversationId}_has_session`"
+      ref="chatboxRef"
       :app-id="appId"
       :user-id="userId"
       :conversation-id="conversationId"
@@ -225,13 +253,58 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
   }
 }
 t-conversation-list {
+  .background-and-text();
+  border-color: @color-background;
   height: calc(@full-height - @header-height - @footer-height);
   width: 100%;
+
+  &:deep(.t-conversation-list-content),
+  &:deep(.t-theme-global-search-header),
+  &:deep(.t-search-icon),
+  &:deep(.t-theme-global-search-box),
+  &:deep(.t-panel),
+  &:deep(.t-loading-panel),
+  &:deep(.t-theme-conversation-list-item) {
+    .background-and-text();
+    border-color: @color-border;
+  }
+
+  &:deep(.t-theme-conversation-list-item a) {
+    .background-and-text();
+  }
 }
 
 t-chatbox {
+  .background-and-text();
+  border-color: @color-background;
   height: @full-height;
   width: 100%;
+
+  &:deep(.t-theme-chat-header),
+  &:deep(.t-participants),
+  &:deep(.t-wrapper),
+  &:deep(.t-preview),
+  &:deep(.t-send-row),
+  &:deep(.t-chatbox-content),
+  &:deep(.t-theme-message-action-menu),
+  &:deep(.t-theme-reply-bar),
+  &:deep(.t-menu-item) {
+    .background-and-text();
+    border-color: @color-border;
+  }
+
+  &:deep(.t-add-reaction-button),
+  &:deep(.t-message-action-menu-button),
+  &:deep(.t-close-button) {
+    svg:hover {
+      fill: @color-text;
+    }
+  }
+
+  &:deep(.t-menu-item-icon-box) {
+    background: white;
+    border-radius: 50%;
+  }
 }
 
 .empty-chat-state {
