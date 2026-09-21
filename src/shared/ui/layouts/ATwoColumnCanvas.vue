@@ -41,6 +41,7 @@ const uiStore = useUiStore()
     position: relative;
     transform: translateX(0);
     width: 20%;
+    min-height: 0;
     min-width: 240px;
   });
 }
