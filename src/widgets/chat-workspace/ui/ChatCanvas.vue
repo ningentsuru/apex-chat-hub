@@ -169,7 +169,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
       :theme="isSiteDark ? 'default_dark' : 'default'"
     />
     <div v-else class="empty-chat-state">
-      <div class="empty-graphic"><MessageCircle height="70" width="70" /></div>
+      <div class="empty-graphic"><MessageCircle :size="70" /></div>
       <h3>No Conversation Active</h3>
       <p>
         Choose a user from the menu sidebar panel to open a live encrypted message thread
@@ -252,6 +252,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     }
   }
 }
+
 t-conversation-list {
   .background-and-text();
   border-color: @color-background;
@@ -263,14 +264,29 @@ t-conversation-list {
   &:deep(.t-search-icon),
   &:deep(.t-theme-global-search-box),
   &:deep(.t-panel),
-  &:deep(.t-loading-panel),
-  &:deep(.t-theme-conversation-list-item) {
+  &:deep(.t-loading-panel) {
     .background-and-text();
     border-color: @color-border;
   }
 
-  &:deep(.t-theme-conversation-list-item a) {
-    .background-and-text();
+  &:deep(.t-conversation-name-link) {
+    color: @color-baw;
+  }
+
+  &:deep(.t-theme-conversation-list-item[t-selected]) {
+    background-color: @color-primary;
+
+    .t-conversation-name {
+      color: @color-white;
+    }
+  }
+
+  &:deep(.t-theme-conversation-list-item) {
+    border-color: @color-border;
+
+    &:not([t-selected]) {
+      .background-and-text();
+    }
   }
 }
 
@@ -293,6 +309,23 @@ t-chatbox {
     border-color: @color-border;
   }
 
+  &:deep(.t-theme-message .t-status-icon[t-status='everyoneRead'] svg) {
+    fill: @color-primary;
+  }
+
+  &:deep(.t-theme-message[t-sender='currentUser'] .t-message-body),
+  &:deep(.t-record-button),
+  &:deep(.t-send-button) {
+    border-color: @color-border;
+    background-color: @color-primary;
+
+    &:focus,
+    &:hover {
+      border-color: @color-primary-hover;
+      background-color: @color-primary-hover;
+    }
+  }
+
   &:deep(.t-add-reaction-button),
   &:deep(.t-message-action-menu-button),
   &:deep(.t-close-button) {
@@ -301,9 +334,9 @@ t-chatbox {
     }
   }
 
-  &:deep(.t-menu-item-icon-box) {
-    background: white;
-    border-radius: 50%;
+  &:deep(.t-menu-item-box) {
+    background: @color-background;
+    border-radius: @border-radius-round;
   }
 }
 
