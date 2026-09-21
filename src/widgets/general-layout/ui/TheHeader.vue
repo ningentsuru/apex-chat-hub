@@ -61,7 +61,7 @@ const toggleTheme = () => {
     </div>
 
     <AButton
-      variant="ghost"
+      variant="text"
       size="sm"
       @click="toggleTheme"
       :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
@@ -82,6 +82,16 @@ const toggleTheme = () => {
   border-bottom: 1px solid @color-border;
   background-color: @color-background;
   transition: @transition-color;
+
+  .a-button.is-text {
+    background-color: transparent;
+    color: @color-text;
+    padding: 0;
+
+    &:hover:not(:disabled) {
+      background-color: transparent;
+    }
+  }
 }
 
 .header-left {

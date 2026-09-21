@@ -273,6 +273,10 @@ t-conversation-list {
     color: @color-baw;
   }
 
+  &:deep(.t-unread-dot) {
+    background-color: @color-primary;
+  }
+
   &:deep(.t-theme-conversation-list-item[t-selected]) {
     background-color: @color-primary;
 
