@@ -276,7 +276,7 @@ t-conversation-list {
   &:deep(.t-theme-conversation-list-item[t-selected]) {
     background-color: @color-primary;
 
-    &:deep(.t-conversation-name-link) {
+    .t-conversation-name {
       color: @color-white;
     }
   }
