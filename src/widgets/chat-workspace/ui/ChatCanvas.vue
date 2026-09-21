@@ -252,6 +252,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
     }
   }
 }
+
 t-conversation-list {
   .background-and-text();
   border-color: @color-background;
@@ -274,7 +275,8 @@ t-conversation-list {
 
   &:deep(.t-theme-conversation-list-item[t-selected]) {
     background-color: @color-primary;
-    .t-conversation-name-link {
+
+    &:deep(.t-conversation-name-link) {
       color: @color-white;
     }
   }
@@ -307,8 +309,13 @@ t-chatbox {
     border-color: @color-border;
   }
 
-  &:deep(.t-theme-message-field .t-record-button),
-  &:deep(.t-theme-message-field .t-record-send) {
+  &:deep(.t-theme-message .t-status-icon[t-status='everyoneRead'] svg) {
+    fill: @color-primary;
+  }
+
+  &:deep(.t-theme-message[t-sender='currentUser'] .t-message-body),
+  &:deep(.t-record-button),
+  &:deep(.t-send-button) {
     border-color: @color-border;
     background-color: @color-primary;
 
@@ -327,9 +334,9 @@ t-chatbox {
     }
   }
 
-  &:deep(.t-menu-item-icon-box) {
-    background: white;
-    border-radius: 50%;
+  &:deep(.t-menu-item-box) {
+    background: @color-background;
+    border-radius: @border-radius-round;
   }
 }
 
