@@ -263,14 +263,21 @@ t-conversation-list {
   &:deep(.t-search-icon),
   &:deep(.t-theme-global-search-box),
   &:deep(.t-panel),
-  &:deep(.t-loading-panel),
-  &:deep(.t-theme-conversation-list-item) {
+  &:deep(.t-loading-panel) {
     .background-and-text();
     border-color: @color-border;
   }
 
-  &:deep(.t-theme-conversation-list-item a) {
-    .background-and-text();
+  &:deep(.t-conversation-name-link) {
+    color: white;
+  }
+
+  &:deep(.t-theme-conversation-list-item) {
+    border-color: @color-border;
+
+    &:not([t-selected]) {
+      .background-and-text();
+    }
   }
 }
 
