@@ -255,7 +255,7 @@ async function handleStartChat(targetUser: (typeof userStore.users)[number]) {
 t-conversation-list {
   .background-and-text();
   border-color: @color-background;
-  height: calc(@full-height - @header-height - @footer-height - 100px);
+  height: calc(@full-height - @header-height - @footer-height);
   width: 100%;
 
   &:deep(.t-conversation-list-content),
@@ -277,7 +277,7 @@ t-conversation-list {
 t-chatbox {
   .background-and-text();
   border-color: @color-background;
-  height: calc(@full-height - 100px);
+  height: @full-height;
   width: 100%;
 
   &:deep(.t-theme-chat-header),
