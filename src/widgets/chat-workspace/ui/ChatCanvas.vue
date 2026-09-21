@@ -269,7 +269,14 @@ t-conversation-list {
   }
 
   &:deep(.t-conversation-name-link) {
-    color: white;
+    color: @color-baw;
+  }
+
+  &:deep(.t-theme-conversation-list-item[t-selected]) {
+    background-color: @color-primary;
+    .t-conversation-name-link {
+      color: @color-white;
+    }
   }
 
   &:deep(.t-theme-conversation-list-item) {
@@ -298,6 +305,18 @@ t-chatbox {
   &:deep(.t-menu-item) {
     .background-and-text();
     border-color: @color-border;
+  }
+
+  &:deep(.t-theme-message-field .t-record-button),
+  &:deep(.t-theme-message-field .t-record-send) {
+    border-color: @color-border;
+    background-color: @color-primary;
+
+    &:focus,
+    &:hover {
+      border-color: @color-primary-hover;
+      background-color: @color-primary-hover;
+    }
   }
 
   &:deep(.t-add-reaction-button),
