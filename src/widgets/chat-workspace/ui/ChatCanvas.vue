@@ -338,8 +338,8 @@ t-chatbox {
     }
   }
 
-  &:deep(.t-menu-item-box) {
-    background: @color-background;
+  &:deep(.t-menu-item-icon-box) {
+    background: @color-white;
     border-radius: @border-radius-round;
   }
 }
