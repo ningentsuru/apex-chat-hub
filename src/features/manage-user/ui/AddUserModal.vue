@@ -21,7 +21,7 @@ const handleSubmit = async () => {
     await userStore.createUser({
       name: name.value,
       email: email.value,
-      photoUrl: photoUrl.value,
+      photoUrl: photoUrl.value || 'n/a',
     })
 
     resetForm()

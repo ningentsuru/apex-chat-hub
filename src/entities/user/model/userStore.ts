@@ -136,7 +136,7 @@ export const useUserStore = defineStore('user', () => {
         photoUrl: payload.photoUrl || '',
       }
 
-      users.value.push(newUser)
+      users.value.unshift(newUser)
       return newUser
     } catch (error) {
       errorMessage.value =
